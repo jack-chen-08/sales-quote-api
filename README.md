@@ -9,6 +9,21 @@ FastAPI + SQLAlchemy 2 + PostgreSQL 16 实现的报价单服务，覆盖**试算
 
 > 本文档只使用虚构数据；不出现任何客户名称，业务主体统一称「会员空间平台」。
 
+## 验收标准 → 用例 → 实测（对应平台 4 条）
+
+| # | 平台验收标准 | 用例（`tests/test_quotes_api.py`） | 实测 |
+|---|---|---|---|
+| 1 | 请求体带金额字段即 `422` + `QUOTE_AMOUNT_READONLY` | `test_preview_rejects_amount_fields`、`test_update_rejects_amount_fields`、`test_create_rejects_nested_amount_fields`（含嵌套 `input_snapshot` 与 5 组字段） | PASSED |
+| 2 | 落库的 `calc_snapshot` 与计算引擎结果完全一致 | `test_saved_calc_snapshot_matches_engine`（逐字段与直接调引擎的结果比对） | PASSED |
+| 3 | `revise` 后旧版本 superseded、新版本 revision 加 1 | `test_revise_supersedes_old_and_bumps_revision`（两行都断言） | PASSED |
+| 4 | 审批通过 15 天后置 `expired`（冻结时钟测试，不真等 15 天） | `test_quote_expires_after_valid_until`、`test_expire_task_ignores_unexpired_and_other_statuses` | PASSED |
+
+实测总结果：**22 passed**（SQLite 内存库）与 **22 passed**（真实 PostgreSQL 16，仅切换 `TEST_DATABASE_URL`，同一套用例）。
+完整 pytest 输出：`run_tests_output.txt`（含「验收标准 → 测试」段落）。
+复现：`pip install -r requirements.txt && pytest -q`；`alembic upgrade head` 或 `sql/schema.sql` 均可建出同样的 66 列。
+
+---
+
 ---
 
 ## 1. 目录结构
