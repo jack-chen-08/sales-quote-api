@@ -1,0 +1,106 @@
+================================================================================
+ 会员空间平台 · 报价单服务  pytest 真实输出
+ 生成时间(UTC): 2026-11-21 12:26:11
+ Python: Python 3.14.4
+ 运行环境: WSL Ubuntu / 依赖见 requirements.txt
+================================================================================
+
+### 第 1 段：默认 SQLite 内存库（快速复跑）
+$ .venv/bin/python -m pytest -v
+
+============================= test session starts ==============================
+platform linux -- Python 3.12.13, pytest-9.2.0, pluggy-1.7.0 -- /home/ubuntuuser/work/ch2398/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/ubuntuuser/work/ch2398
+configfile: pytest.ini
+testpaths: tests
+plugins: anyio-4.16.0
+collecting ... collected 22 items
+
+tests/test_quotes_api.py::test_preview_rejects_amount_fields[final_monthly_cents-1] PASSED [  4%]
+tests/test_quotes_api.py::test_preview_rejects_amount_fields[contract_total_cents-100] PASSED [  9%]
+tests/test_quotes_api.py::test_preview_rejects_amount_fields[first_year_amount_cents-100] PASSED [ 13%]
+tests/test_quotes_api.py::test_preview_rejects_amount_fields[deposit_cents-0] PASSED [ 18%]
+tests/test_quotes_api.py::test_preview_rejects_amount_fields[concession_bps-9999] PASSED [ 22%]
+tests/test_quotes_api.py::test_create_rejects_nested_amount_fields PASSED [ 27%]
+tests/test_quotes_api.py::test_update_rejects_amount_fields PASSED       [ 31%]
+tests/test_quotes_api.py::test_saved_calc_snapshot_matches_engine PASSED [ 36%]
+tests/test_quotes_api.py::test_update_recomputes_amounts PASSED          [ 40%]
+tests/test_quotes_api.py::test_revise_supersedes_old_and_bumps_revision PASSED [ 45%]
+tests/test_quotes_api.py::test_quote_expires_after_valid_until PASSED    [ 50%]
+tests/test_quotes_api.py::test_expire_task_ignores_unexpired_and_other_statuses PASSED [ 54%]
+tests/test_quotes_api.py::test_visit_scheduled_advances_funnel_with_system_trigger PASSED [ 59%]
+tests/test_quotes_api.py::test_first_draft_only_advances_once PASSED     [ 63%]
+tests/test_quotes_api.py::test_earlier_stage_creates_draft_without_advancing PASSED [ 68%]
+tests/test_quotes_api.py::test_void_requires_reason PASSED               [ 72%]
+tests/test_quotes_api.py::test_put_only_allows_draft_or_rejected PASSED  [ 77%]
+tests/test_quotes_api.py::test_mark_sent_sets_sent_at_and_valid_until PASSED [ 81%]
+tests/test_quotes_api.py::test_list_filters_and_pagination PASSED        [ 86%]
+tests/test_quotes_api.py::test_quote_no_sequence_increments_per_day PASSED [ 90%]
+tests/test_quotes_api.py::test_preview_does_not_persist PASSED           [ 95%]
+tests/test_quotes_api.py::test_detail_404_for_unknown_quote PASSED       [100%]
+
+============================== 22 passed in 0.74s ==============================
+
+
+### 第 2 段：真实 PostgreSQL 16（docker: pgvector/pgvector:pg16，端口 55498）
+$ docker exec -e PGPASSWORD=*** ch2398-pg psql -U postgres -tAc "select version();"
+  PostgreSQL 16.16 (Debian 16.16-1.pgdg12+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14+deb12u1) 12.2.0, 64-bit
+
+$ TEST_DATABASE_URL=$DATABASE_URL_TEST .venv/bin/python -m pytest -v
+
+============================= test session starts ==============================
+platform linux -- Python 3.12.13, pytest-9.2.0, pluggy-1.7.0 -- /home/ubuntuuser/work/ch2398/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/ubuntuuser/work/ch2398
+configfile: pytest.ini
+testpaths: tests
+plugins: anyio-4.16.0
+collecting ... collected 22 items
+
+tests/test_quotes_api.py::test_preview_rejects_amount_fields[final_monthly_cents-1] PASSED [  4%]
+tests/test_quotes_api.py::test_preview_rejects_amount_fields[contract_total_cents-100] PASSED [  9%]
+tests/test_quotes_api.py::test_preview_rejects_amount_fields[first_year_amount_cents-100] PASSED [ 13%]
+tests/test_quotes_api.py::test_preview_rejects_amount_fields[deposit_cents-0] PASSED [ 18%]
+tests/test_quotes_api.py::test_preview_rejects_amount_fields[concession_bps-9999] PASSED [ 22%]
+tests/test_quotes_api.py::test_create_rejects_nested_amount_fields PASSED [ 27%]
+tests/test_quotes_api.py::test_update_rejects_amount_fields PASSED       [ 31%]
+tests/test_quotes_api.py::test_saved_calc_snapshot_matches_engine PASSED [ 36%]
+tests/test_quotes_api.py::test_update_recomputes_amounts PASSED          [ 40%]
+tests/test_quotes_api.py::test_revise_supersedes_old_and_bumps_revision PASSED [ 45%]
+tests/test_quotes_api.py::test_quote_expires_after_valid_until PASSED    [ 50%]
+tests/test_quotes_api.py::test_expire_task_ignores_unexpired_and_other_statuses PASSED [ 54%]
+tests/test_quotes_api.py::test_visit_scheduled_advances_funnel_with_system_trigger PASSED [ 59%]
+tests/test_quotes_api.py::test_first_draft_only_advances_once PASSED     [ 63%]
+tests/test_quotes_api.py::test_earlier_stage_creates_draft_without_advancing PASSED [ 68%]
+tests/test_quotes_api.py::test_void_requires_reason PASSED               [ 72%]
+tests/test_quotes_api.py::test_put_only_allows_draft_or_rejected PASSED  [ 77%]
+tests/test_quotes_api.py::test_mark_sent_sets_sent_at_and_valid_until PASSED [ 81%]
+tests/test_quotes_api.py::test_list_filters_and_pagination PASSED        [ 86%]
+tests/test_quotes_api.py::test_quote_no_sequence_increments_per_day PASSED [ 90%]
+tests/test_quotes_api.py::test_preview_does_not_persist PASSED           [ 95%]
+tests/test_quotes_api.py::test_detail_404_for_unknown_quote PASSED       [100%]
+
+============================== 22 passed in 1.50s ==============================
+
+### 结论
+  SQLite 内存库： 22 passed
+  PostgreSQL 16： 22 passed（同一套测试，仅切换 TEST_DATABASE_URL）
+
+### 4 条验收断言 ↔ 测试函数
+  1) 请求体含 final_monthly_cents → 422 / QUOTE_AMOUNT_READONLY
+       tests/test_quotes_api.py::test_preview_rejects_amount_fields（5 组参数）
+       tests/test_quotes_api.py::test_create_rejects_nested_amount_fields（嵌套在 input_snapshot 内）
+       tests/test_quotes_api.py::test_update_rejects_amount_fields（PUT 同样受限）
+  2) 保存的 calc_snapshot 与直接调引擎逐字段相等
+       tests/test_quotes_api.py::test_saved_calc_snapshot_matches_engine
+  3) revise 后旧版 superseded、新版 revision+1
+       tests/test_quotes_api.py::test_revise_supersedes_old_and_bumps_revision
+  4) 审批通过 15 天后置 expired（冻结时钟，不真等）
+       tests/test_quotes_api.py::test_quote_expires_after_valid_until
+       tests/test_quotes_api.py::test_expire_task_ignores_unexpired_and_other_statuses
+
+### 其他覆盖
+  漏斗： test_visit_scheduled_advances_funnel_with_system_trigger / test_first_draft_only_advances_once / test_earlier_stage_creates_draft_without_advancing
+  作废： test_void_requires_reason（reason 必填） / test_put_only_allows_draft_or_rejected（仅 draft|rejected 可改）
+  其他： 单号日递增、试算不落库、列表过滤分页、mark-sent 写 sent_at、详情 404
